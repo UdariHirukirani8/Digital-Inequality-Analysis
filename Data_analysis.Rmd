@@ -1,0 +1,286 @@
+---
+title: "The Global Digital Divide"
+author: "D/ADC/26/0032"
+date: "2026-03-24"
+output: html_document
+---
+
+# 1. Introduction
+
+Every day, billions of people use the internet to work, learn, and connect.
+But in 2024, **2.6 billion people have never used the internet.**
+
+This analysis explores the Global Digital Divide — the gap between 
+countries with high internet access and those left behind.
+
+**Research Question:**
+> "Which countries are most affected by the digital divide, 
+>  and does wealth determine internet access?"
+
+---
+```{r}
+library(tidyverse)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(scales)
+library(countrycode)
+library(RColorBrewer)
+library(plotly)
+library(knitr)
+```
+---
+
+# Load & Clean Data|Load raw datasets
+```{r}
+internet_raw <- read_csv("C:/Users/User1/Desktop/DigitalDivide/R asm/internet_users.csv", skip = 4)
+gdp_raw      <- read_csv("C:/Users/User1/Desktop/DigitalDivide/R asm/gdp_per_capita.csv", skip = 4)
+mobile_raw   <- read_csv("C:/Users/User1/Desktop/DigitalDivide/R asm/mobile_subscriptions.csv", skip = 4)
+```
+
+---
+```{r}
+# Clean Internet Users dataset
+internet_clean <- internet_raw %>%
+  # select only columns we need
+  select(`Country Name`, `Country Code`, `2000`:`2022`) %>%
+  # remove rows with no country name
+  filter(!is.na(`Country Name`)) %>%
+  # pivot from wide to long format
+  # wide = each year is a column
+  # long = one row per country per year
+  pivot_longer(
+    cols = `2000`:`2022`,
+    names_to = "Year",
+    values_to = "Internet_Users_Pct"
+  ) %>%
+  # convert Year from text to number
+  mutate(Year = as.integer(Year)) %>%
+  # add continent information
+  mutate(
+    Continent = countrycode(`Country Code`,
+                            origin = "iso3c",
+                            destination = "continent")
+  ) %>%
+  # remove rows where internet % is missing
+  filter(!is.na(Internet_Users_Pct)) %>%
+  # remove regional aggregates (keep only real countries)
+  filter(!is.na(Continent))
+
+# Clean GDP dataset (same process)
+gdp_clean <- gdp_raw %>%
+  select(`Country Name`, `Country Code`, `2000`:`2022`) %>%
+  filter(!is.na(`Country Name`)) %>%
+  pivot_longer(
+    cols = `2000`:`2022`,
+    names_to = "Year",
+    values_to = "GDP_Per_Capita"
+  ) %>%
+  mutate(Year = as.integer(Year)) %>%
+  filter(!is.na(GDP_Per_Capita))
+
+# Clean Mobile dataset
+mobile_clean <- mobile_raw %>%
+  select(`Country Name`, `Country Code`, `2000`:`2022`) %>%
+  filter(!is.na(`Country Name`)) %>%
+  pivot_longer(
+    cols = `2000`:`2022`,
+    names_to = "Year",
+    values_to = "Mobile_Subscriptions"
+  ) %>%
+  mutate(Year = as.integer(Year)) %>%
+  filter(!is.na(Mobile_Subscriptions))
+
+# Merge all 3 datasets together
+combined_data <- internet_clean %>%
+  left_join(gdp_clean %>%
+              select(`Country Code`, Year, GDP_Per_Capita),
+            by = c("Country Code", "Year")) %>%
+  left_join(mobile_clean %>%
+              select(`Country Code`, Year, Mobile_Subscriptions),
+            by = c("Country Code", "Year"))
+
+# Save cleaned data for Shiny app to use
+write_csv(combined_data, "combined_data.csv")
+
+# Quick check
+cat("Total rows:", nrow(combined_data), "\n")
+cat("Countries:", n_distinct(combined_data$`Country Name`), "\n")
+cat("Years:", min(combined_data$Year), "to", max(combined_data$Year), "\n")
+```
+
+---
+
+# 4. Chart 1 — Internet Growth by Continent
+```{r}
+# Calculate average internet usage per continent per year
+continent_trend <- combined_data %>%
+  group_by(Continent, Year) %>%
+  summarise(
+    Avg_Internet = mean(Internet_Users_Pct, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Create the line chart
+chart1 <- ggplot(continent_trend,
+                 aes(x = Year,
+                     y = Avg_Internet,
+                     color = Continent,
+                     group = Continent)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 2) +
+  scale_color_brewer(palette = "Set2") +
+  scale_y_continuous(labels = percent_format(scale = 1)) +
+  labs(
+    title = "Internet Usage Growth by Continent (2000-2022)",
+    subtitle = "The digital divide between continents is growing",
+    x = "Year",
+    y = "Average Internet Users (%)",
+    color = "Continent",
+    caption = "Source: World Bank"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    plot.subtitle = element_text(size = 12, color = "gray50"),
+    legend.position = "right"
+  )
+
+# Make it interactive
+ggplotly(chart1)
+```
+
+**Insight:** Europe and the Americas have seen rapid growth since 2000,
+while Africa remains significantly behind despite recent improvements.
+
+---
+
+# 5. Chart 2 — Top vs Bottom Countries
+```{r chart2, message=FALSE, warning=FALSE, fig.width=10, fig.height=8}
+# Get most recent year data (2022)
+latest_data <- combined_data %>%
+  filter(Year == 2022) %>%
+  group_by(`Country Name`, Continent) %>%
+  summarise(
+    Internet_Pct = mean(Internet_Users_Pct, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  filter(!is.na(Internet_Pct))
+
+# Top 10 countries
+top10 <- latest_data %>%
+  arrange(desc(Internet_Pct)) %>%
+  head(10) %>%
+  mutate(Group = "Top 10")
+
+# Bottom 10 countries
+bottom10 <- latest_data %>%
+  arrange(Internet_Pct) %>%
+  head(10) %>%
+  mutate(Group = "Bottom 10")
+
+# Combine top and bottom
+top_bottom <- bind_rows(top10, bottom10)
+
+# Create bar chart
+chart2 <- ggplot(top_bottom,
+                 aes(x = reorder(`Country Name`, Internet_Pct),
+                     y = Internet_Pct,
+                     fill = Group)) +
+  geom_col() +
+  coord_flip() +
+  scale_fill_manual(values = c("Top 10" = "#B23AEE",
+                                "Bottom 10" = "#FF6A6A")) +
+  scale_y_continuous(labels = percent_format(scale = 1)) +
+  labs(
+    title = "The Digital Divide: Top 10 vs Bottom 10 Countries (2022)",
+    subtitle = "A gap of over 90 percentage points separates leaders from laggards",
+    x = "Country",
+    y = "Internet Users (%)",
+    fill = "Group",
+    caption = "Source: World Bank"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    plot.subtitle = element_text(size = 11, color = "gray50")
+  )
+
+ggplotly(chart2)
+```
+
+**Insight:** Countries like Norway and Denmark have near 100% internet access,
+while countries like South Sudan and Chad remain below 10%.
+
+---
+
+# 6. Chart 3 — Scatter Plot: Wealth vs Internet Access
+```{r chart3, message=FALSE, warning=FALSE, fig.width=10, fig.height=7}
+# Get 2022 data with both internet and GDP
+scatter_data <- combined_data %>%
+  filter(Year == 2022) %>%
+  filter(!is.na(GDP_Per_Capita)) %>%
+  filter(!is.na(Internet_Users_Pct)) %>%
+  group_by(`Country Name`, Continent) %>%
+  summarise(
+    Internet_Pct = mean(Internet_Users_Pct, na.rm = TRUE),
+    GDP = mean(GDP_Per_Capita, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Create scatter plot
+chart3 <- ggplot(scatter_data,
+                 aes(x = GDP,
+                     y = Internet_Pct,
+                     color = Continent,
+                     text = `Country Name`)) +
+  geom_point(size = 3, alpha = 0.7) +
+  geom_smooth(method = "loess",
+              se = TRUE,
+              color = "black",
+              linetype = "dashed") +
+  scale_x_log10(labels = dollar_format()) +
+  scale_y_continuous(labels = percent_format(scale = 1)) +
+  scale_color_brewer(palette = "Set2") +
+  labs(
+    title = "Does Wealth Determine Internet Access?",
+    subtitle = "GDP per capita vs Internet usage % (2022)",
+    x = "GDP Per Capita (log scale, USD)",
+    y = "Internet Users (%)",
+    color = "Continent",
+    caption = "Source: World Bank"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    plot.subtitle = element_text(size = 11, color = "gray50")
+  )
+
+ggplotly(chart3, tooltip = c("text", "x", "y"))
+```
+
+**Insight:** There is a very strong positive relationship between GDP per capita
+and internet access. Wealthier countries consistently have higher internet usage.
+This confirms that economic development is a key driver of digital inclusion.
+
+---
+
+# 7. Conclusion
+
+This analysis reveals three key findings:
+
+1. **The divide is real** — Internet access ranges from under 5% to nearly 100%
+2. **Continents matter** — Africa lags far behind Europe and Americas
+3. **Wealth drives access** — GDP per capita strongly predicts internet usage
+
+The digital divide is not just about technology — it reflects deeper 
+inequalities in economic development and infrastructure investment.
+
+> *"In a world where the internet is increasingly essential for education,
+> work, and healthcare — being offline means being left behind."
+
+---
+
+
+
+

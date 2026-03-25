@@ -1,0 +1,211 @@
+/* ── PAGE ── */
+body,
+.wrapper {
+    background-color: #f0f4f8 !important;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+}
+
+.content-wrapper,
+.right-side {
+    background-color: #f0f4f8 !important;
+}
+
+/* ── HEADER ── */
+.main-header .logo,
+.main-header .navbar {
+    background: linear-gradient(135deg, #1e3a5f 0%, #1d4ed8 100%) !important;
+    border-bottom: none !important;
+}
+
+.main-header .logo {
+    font-weight: 800 !important;
+}
+
+/* ── SIDEBAR ── */
+.main-sidebar,
+.left-side {
+    background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%) !important;
+}
+
+.sidebar-menu>li>a {
+    color: #cbd5e1 !important;
+}
+
+.sidebar-menu>li.active>a,
+.sidebar-menu>li>a:hover {
+    background-color: #1e3a5f !important;
+    color: white !important;
+}
+
+/* ── VALUE BOXES ── */
+.small-box {
+    border-radius: 16px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+    transition: transform 0.2s ease,
+        box-shadow 0.2s ease !important;
+    padding: 18px !important;
+}
+
+.small-box:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2) !important;
+}
+
+.small-box .inner h3 {
+    font-size: 2.4rem !important;
+    font-weight: 900 !important;
+    letter-spacing: -0.5px !important;
+    margin-bottom: 6px !important;
+}
+
+.small-box .inner p {
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    opacity: 0.95 !important;
+    line-height: 1.4 !important;
+}
+
+.small-box .icon {
+    font-size: 65px !important;
+    top: 15px !important;
+    opacity: 0.25 !important;
+}
+
+.small-box.bg-blue {
+    background: linear-gradient(135deg, #1d4ed8, #3b82f6) !important;
+}
+
+.small-box.bg-green {
+    background: linear-gradient(135deg, #059669, #10b981) !important;
+}
+
+.small-box.bg-orange {
+    background: linear-gradient(135deg, #d97706, #f59e0b) !important;
+}
+
+.small-box.bg-red {
+    background: linear-gradient(135deg, #dc2626, #ef4444) !important;
+}
+
+/* ── TAB BOX ── */
+.nav-tabs-custom {
+    background: white !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+    border: none !important;
+    overflow: hidden !important;
+}
+
+.nav-tabs-custom>.nav-tabs {
+    border-bottom: 2px solid #e2e8f0 !important;
+    background: white !important;
+    padding: 8px 12px 0 !important;
+}
+
+.nav-tabs-custom>.nav-tabs>li>a {
+    color: #64748b !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    border-radius: 8px 8px 0 0 !important;
+    padding: 10px 14px !important;
+    transition: all 0.2s !important;
+    border: none !important;
+}
+
+.nav-tabs-custom>.nav-tabs>li.active>a {
+    color: #1d4ed8 !important;
+    border-top: 3px solid #1d4ed8 !important;
+    background: #eff6ff !important;
+    font-weight: 700 !important;
+}
+
+.nav-tabs-custom>.nav-tabs>li>a:hover {
+    background: #f8fafc !important;
+    color: #1d4ed8 !important;
+}
+
+.nav-tabs-custom>.tab-content {
+    background: white !important;
+    padding: 20px !important;
+}
+
+/* ── INPUTS ── */
+.form-control,
+.selectize-input {
+    border-radius: 8px !important;
+    border: 1px solid #475569 !important;
+    background-color: #1e293b !important;
+    color: #e2e8f0 !important;
+    font-size: 13px !important;
+}
+
+.selectize-dropdown {
+    background-color: #1e293b !important;
+    color: #e2e8f0 !important;
+    border: 1px solid #475569 !important;
+    border-radius: 8px !important;
+}
+
+.selectize-dropdown-content .option:hover {
+    background-color: #1d4ed8 !important;
+}
+
+/* ── SLIDER ── */
+.irs--shiny .irs-bar {
+    background: linear-gradient(90deg, #1d4ed8, #3b82f6) !important;
+    border-top: none !important;
+    border-bottom: none !important;
+}
+
+.irs--shiny .irs-handle {
+    background: #1d4ed8 !important;
+    border-color: #1d4ed8 !important;
+}
+
+.irs--shiny .irs-from,
+.irs--shiny .irs-to,
+.irs--shiny .irs-single {
+    background: #1d4ed8 !important;
+    border-radius: 6px !important;
+}
+
+.irs--shiny .irs-line {
+    background: #334155 !important;
+    border: none !important;
+}
+
+/* ── INFO TEXT ── */
+.info-text {
+    color: #64748b;
+    font-size: 13px;
+    font-style: italic;
+    border-left: 4px solid #3b82f6;
+    padding: 6px 12px;
+    margin-bottom: 16px;
+    background: #eff6ff;
+    border-radius: 0 8px 8px 0;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #94a3b8;
+    border-radius: 3px;
+}
+
+/* ── CONTROL LABELS ── */
+.control-label {
+    color: #93c5fd !important;
+    font-weight: 700 !important;
+    font-size: 11px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}

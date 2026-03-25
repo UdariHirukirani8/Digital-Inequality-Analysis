@@ -1,0 +1,28 @@
+# --- R Specific ---
+.Rproj.user/
+.RData
+.RDataTmp
+.Rhistory
+.Rapp.history
+.Ruserdata
+
+# --- Python Specific ---
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+
+# --- OS Specific ---
+.DS_Store
+Thumbs.db
+.directory
+
+# --- IDE Specific ---
+.vscode/
+.idea/
+
+# --- Data & Outputs ---
+# We are NOT ignoring .csv, .R, .Rmd, .html, or .css 
+# as per your requirement to push them.
