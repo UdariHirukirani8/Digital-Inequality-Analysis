@@ -1,0 +1,24 @@
+# --- R Specific ---
+.Rproj.user/
+.RData
+.RDataTmp
+.Rhistory
+.Rapp.history
+.Ruserdata
+
+# --- Python Specific ---
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+
+# --- OS Specific ---
+.DS_Store
+Thumbs.db
+
+# --- Data (Optional) ---
+# Uncomment the line below if combined_data.csv is too large for GitHub 
+# combined_data.csv
+
